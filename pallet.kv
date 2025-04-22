@@ -1,0 +1,853 @@
+#:import dp kivy.metrics.dp
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+#:import Clock kivy.clock.Clock
+
+<RoundedButton>:
+    color: get_color_from_hex('#FFFFFF') 
+    bold: True
+    font_size: '22sp'
+    halign: 'center'
+    valign: 'middle'
+
+    canvas.before:
+        # Widget que arredonda os botões
+        Color:
+            rgba: self.base_color
+        RoundedRectangle:
+            pos: self.pos[0]-dp(7), self.pos[1]-dp(7)
+            size: self.size[0]+dp(15), self.size[1]+dp(15)
+            radius: [dp(25)]
+        
+        # Borda (70% da cor base)
+        Color:
+            rgba: (self.base_color[0]*0.7, self.base_color[1]*0.7, self.base_color[2]*0.7, 1)
+        Line:
+            rounded_rectangle: [self.x-dp(7), self.y-dp(7), self.width+dp(15), self.height+dp(15), dp(25)]
+            width: 3 if self.state == 'down' else 1
+
+
+# Botão para voltar ao inicio
+<VoltarButton@RoundedButton>:
+    text: "[font=FontAwesome]\uf015[/font]  Voltar ao Menu"
+    font_size: '22sp'
+    size_hint: 0.4, 1
+    base_color: get_color_from_hex('#757575')
+    on_release: app.root.current = 'inicio'
+    markup: True
+
+
+# Botão para a tela de Consulta
+<ConsultarButton@RoundedButton>:
+    text: "[font=FontAwesome]\uf002[/font]  Consultar"
+    font_size: '22sp'
+    size_hint_x: 0.3
+    base_color: get_color_from_hex('#1565C0')  # Azul escuro
+    on_release: app.root.current = 'consulta'
+    markup: True
+
+
+# Botão para a tela de Registro
+<NovoRegistroButton@RoundedButton>:
+    text: "[font=FontAwesome]\uf234[/font]  Novo Registro"
+    font_size: '22sp'
+    size_hint_x: 0.5
+    base_color: get_color_from_hex('#1565C0')  # Azul escuro
+    on_release: app.root.current = 'registro'
+    markup: True
+
+
+# Botão para a tela de Saída
+<SaidaButton@RoundedButton>:
+    text: "[font=FontAwesome]\uf2f5[/font]  Saída de Pallets" # Ícone de saída (sign-out-alt)
+    font_size: '22sp'
+    base_color: get_color_from_hex('#42A5F5')  # Azul claro
+    size_hint_x: 0.5
+    on_release: app.root.current = 'saida'
+    markup: True
+
+
+<RoundedTextInput>:
+    background_color: 0, 0, 0, 0
+    foreground_color: get_color_from_hex('#000000')
+    hint_text_color: get_color_from_hex('#808080')
+    font_size: '16sp'
+    padding: [dp(15), dp(10)]
+    cursor_color: get_color_from_hex('#000000')  # Cor preta
+    cursor_width: dp(1)
+    cursor_blink: True  # Piscar quando em foco
+    input_filter: None
+    canvas.before:
+        # Fundo
+        Color:
+            rgba: get_color_from_hex('#F0F0F0') if self.focus else get_color_from_hex('#E0E0E0')
+        RoundedRectangle:
+            pos: self.x + dp(1), self.y + dp(1)  # Margem para o cursor
+            size: self.width - dp(2), self.height - dp(2)
+            radius: [dp(15),]
+        
+        # Borda
+        Color:
+            rgba: get_color_from_hex('#B0B0B0')
+        Line:
+            rounded_rectangle: [self.x, self.y, self.width, self.height, dp(15)]
+            width: 1
+
+    canvas.after:
+        # Cursor (agora usa show_cursor)
+        Color:
+            rgba: self.cursor_color if (self.focus and self.show_cursor) else (0, 0, 0, 0)
+        Rectangle:
+            pos: self.cursor_pos[0], self.cursor_pos[1] + dp(3)
+            size: self.cursor_width, -self.line_height + dp(3)
+
+
+<RoundedSpinner>:
+    color: get_color_from_hex('#000000')
+    font_size: '18sp'
+    background_normal: ''
+    background_down: ''
+    option_cls: 'RoundedSpinnerOption'
+
+    canvas.before:
+        # Efeito de pressionar
+        Color:
+            rgba: self.hover_color if self.is_open else self.base_color
+        RoundedRectangle:
+            pos: self.x - dp(5), self.y - dp(5)
+            size: self.width + dp(10), self.height + dp(10)
+            radius: root.radius
+        
+        # Borda
+        Color:
+            rgba: (self.base_color[0]*0.7, self.base_color[1]*0.7, self.base_color[2]*0.7, 1)
+        Line:
+            rounded_rectangle: [self.x - dp(5), self.y - dp(5), self.width + dp(10), self.height + dp(10), *root.radius]
+            width: dp(1.5)
+
+    on_touch_down:
+        if self.collide_point(*args[1].pos): \
+        self.hover_color = get_color_from_hex('#0D47A1'); \
+        Clock.schedule_once(lambda dt: setattr(self, 'hover_color', self.base_color), 0.1)
+
+
+<RoundedSpinnerOption@SpinnerOption>:
+    is_selected: False
+    background_color: get_color_from_hex('#F5F5F5')
+    color: get_color_from_hex('#000000')
+    font_size: '14sp'
+    height: dp(40)
+    canvas.before:
+        Color:
+            rgba: get_color_from_hex('#BBDEFB') if self.is_selected else self.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+
+<RoundedScrollView@ScrollView>:
+    bar_width: dp(10)
+    bar_color: get_color_from_hex('#2E7D32')
+    bar_inactive_color: get_color_from_hex('#2E7D3266')
+    scroll_type: ['bars', 'content']
+    effect_cls: 'ScrollEffect'
+
+
+<TelaInicial>:
+    name: 'inicio'
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: get_color_from_hex('#A8D1EA')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # Preenchimento superior com borda inferior
+        BoxLayout:
+            size_hint: 1, 0.15
+            pos_hint: {'top': 1}
+            canvas:
+                # Preenchimento
+                Color:
+                    rgba: get_color_from_hex('#1976D2') # #1976D2
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+                
+                # Borda inferior
+                Color:
+                    rgba: get_color_from_hex('#42A5F5') # Cor da borda #42A5F5
+                Line:
+                    points: self.x, self.y, self.right, self.y
+                    width: dp(8)
+
+        # Preenchimento inferior com borda superior
+        BoxLayout:
+            size_hint: 1, 0.15
+            pos_hint: {'bottom': 1}
+            canvas:
+                # Preenchimento
+                Color:
+                    rgba: get_color_from_hex('#1976D2') # #1976D2
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+                
+                # Borda superior
+                Color:
+                    rgba: get_color_from_hex('#42A5F5')  # Cor da borda #42A5F5
+                Line:
+                    points: self.x, self.top, self.right, self.top
+                    width: dp(8)
+
+        # Botões
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: dp(30)
+            size_hint: None, None
+            size: dp(300), dp(200)
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            
+            # Título
+            Label:
+                text: "Registro de Pallets"
+                font_size: '27sp'
+                bold: True
+                color: get_color_from_hex('#1565C0')
+                size_hint: None, None
+                size: self.texture_size[0] + dp(50), dp(60)
+                pos_hint: {'center_x': 0.4, 'top': 0.70}  # Centralizado horizontalmente e 70% do topo
+                halign: 'center'  # Texto centralizado no label
+                padding: dp(10)  # Padding geral
+
+            RoundedButton:
+                text: "Novo Registro"
+                base_color: get_color_from_hex('#1565C0') # Azul escuro #1565C0
+                size_hint: None, None
+                size: dp(350), dp(60)
+                on_press: root.manager.current = 'registro'
+            
+            RoundedButton:
+                text: "Saída de Pallets"
+                base_color: get_color_from_hex('#42A5F5') # Azul claro #42A5F5
+                size_hint: None, None
+                size: dp(350), dp(60)
+                on_press: root.manager.current = 'saida'
+
+            RoundedButton:
+                text: "Consultar"
+                base_color: get_color_from_hex('#1565C0') # Azul escuro #1565C0
+                size_hint: None, None
+                size: dp(350), dp(60)
+                on_press: root.manager.current = 'consulta'
+
+
+<TelaRegistro>:
+    name: 'registro'
+    client_manager: app.client_manager
+
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: get_color_from_hex('#A8D1EA')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        
+        Button:
+            text: "≡"
+            size_hint: None, None
+            size: dp(60), dp(60)
+            pos_hint: {'x': 0, 'top': 1}  # Canto superior esquerdo
+            background_color: (0, 0, 0, 0)
+            color: get_color_from_hex('#000000')
+            font_size: '30sp'
+            font_name: 'Arial'
+            bold: True
+            on_press: root.toggle_sidebar()
+
+        # Layout que deixa os outros layouts separados verticalmente
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 0.9, 0.8
+            size: dp(1000), dp(400)
+            pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+            spacing: dp(20)
+            padding: [dp(20), dp(20), dp(20), 0]
+
+            # Cabeçalho com Cliente
+            BoxLayout:
+                size_hint_y: None
+                height: dp(80)
+                spacing: dp(15)
+                padding: [0, dp(20), 0, 0]
+
+                RoundedSpinner:
+                    id: cliente_spinner
+                    text: "Selecione um Cliente"
+                    base_color: get_color_from_hex('#002147')  # Azul escuro
+                    border_color: get_color_from_hex('#000D1A')  # Borda mais escura
+                    color: get_color_from_hex('#87CEEB')  # Texto branco
+                    radius: [dp(15)]
+                    values: root.client_manager.clientes.keys() if root.client_manager and root.client_manager.clientes else []
+                    size_hint_x: 0.8
+                    font_size: '18sp'  # Garanta legibilidade
+                    on_text: root.atualizar_pallets()
+                
+            # Lista de Pallets com Quantidades
+            ScrollView:
+                size_hint_y: 0.8
+                bar_width: dp(10)
+                bar_color: get_color_from_hex('#2E7D32')
+
+                GridLayout:
+                    id: pallets_container
+                    cols: 1
+                    row_force_default: True
+                    row_default_height: dp(50)
+                    spacing: dp(15)
+                    padding: dp(10)
+                    size_hint_y: None
+                    height: self.minimum_height
+            
+            # Botão Registrar e data
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                height: dp(60)
+                spacing: dp(15)
+                padding: (0, 10, 0, 0)
+                pos_hint: {'center_x': 0.5, 'y': 0}  # 👈 NO FUNDO DO LAYOUT PAI
+                
+                # Input de Data
+                RoundedTextInput:
+                    id: data_input
+                    hint_text: "Data (DD/MM/AAAA)"
+                    size_hint_x: 0.2
+                    font_size: '16sp'
+
+                # Botão Registrar
+                RoundedButton:
+                    text: "Registrar"
+                    size_hint_x: 0.2
+                    base_color: get_color_from_hex('#1565C0')
+                    on_press: root.registrar_pallets()
+        
+        # --- BOTÕES INFERIORES ---
+        BoxLayout:
+            size_hint_y: None
+            height: dp(70)
+            spacing: dp(23)
+            pos_hint: {'center_x': 0.5, 'y': 0.04}  # 4% acima da base
+
+            Widget:  # 👈 Espaçador esquerdo
+                size_hint_x: 0.02
+
+            VoltarButton:
+            ConsultarButton:
+            SaidaButton:
+                
+            Widget:  # 👈 Espaçador esquerdo
+                size_hint_x: 0.02
+
+
+<TelaSaida>:
+    name: 'saida'
+    client_manager: app.client_manager
+
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: get_color_from_hex('#A8D1EA')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Button:
+            text: "≡"
+            size_hint: None, None
+            size: dp(60), dp(60)
+            pos_hint: {'x': 0, 'top': 1}
+            background_color: (0, 0, 0, 0)
+            color: get_color_from_hex('#000000')
+            font_size: '30sp'
+            font_name: 'Arial'
+            bold: True
+            on_press: root.toggle_sidebar()
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 0.9, 0.8
+            size: dp(1000), dp(400)
+            pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+            spacing: dp(20)
+            padding: [dp(20), dp(20), dp(20), 0]
+
+            # Cabeçalho com Cliente
+            BoxLayout:
+                size_hint_y: None
+                height: dp(80)
+                spacing: dp(15)
+                padding: [0, dp(20), 0, 0]
+
+                RoundedSpinner:
+                    id: cliente_spinner_saida
+                    text: "Selecione um Cliente"
+                    base_color: get_color_from_hex('#002147')
+                    color: get_color_from_hex('#87CEEB')
+                    radius: [dp(15)]
+                    values: root.client_manager.clientes.keys() if root.client_manager else []
+                    size_hint_x: 0.8
+                    font_size: '18sp'
+                    on_text: root.atualizar_pallets()  # Certifique-se de que esse evento está correto
+
+            # Lista de Pallets com Saídas
+            ScrollView:
+                size_hint_y: 0.8
+                bar_width: dp(10)
+                bar_color: get_color_from_hex('#2E7D32')
+
+                GridLayout:
+                    id: pallets_container_saida
+                    cols: 1
+                    size_hint_y: None
+                    height: self.minimum_height  # Altura dinâmica
+                    spacing: dp(15)
+                    padding: dp(10)
+                    row_force_default: True  # Linhas com altura variável
+                    row_default_height: dp(50)
+            
+            # Botão Registrar e data
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                height: dp(60)
+                spacing: dp(15)
+                padding: (0, 10, 0, 0)
+                pos_hint: {'center_x': 0.5, 'y': 0}
+
+                RoundedTextInput:
+                    id: data_input_saida
+                    hint_text: "Data (DD/MM/AAAA)"
+                    size_hint_x: 0.2
+                    font_size: '16sp'
+
+                RoundedButton:
+                    text: "Registrar Saída"
+                    size_hint_x: 0.2
+                    base_color: get_color_from_hex('#D32F2F')  # Vermelho
+                    on_press: root.registrar_saidas()
+        
+        # --- BOTÕES INFERIORES ---
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(70)
+            spacing: dp(23)
+            pos_hint: {'center_x': 0.5, 'y': 0.04}
+            
+            Widget:  # 👈 Espaçador esquerdo
+                size_hint_x: 0.02
+
+            VoltarButton:
+            ConsultarButton:
+            NovoRegistroButton:
+                base_color: get_color_from_hex('#42A5F5')  # Azul claro
+            
+            Widget:  # 👈 Espaçador esquerdo
+                size_hint_x: 0.02
+
+
+<Sidebar>: # Largura do sidebar definida no arquivo Python
+    client_manager: app.client_manager
+    canvas.before:
+        Color:
+            rgba: get_color_from_hex('#2E3B4E')
+        RoundedRectangle:
+            pos: self.x - dp(20), self.y - dp(20)  # Expande para fora
+            size: self.width + dp(37), self.height + dp(55)  # Aumenta 20dp em largura/altura
+            radius: [dp(10),]  # Arredondamento leve
+
+    FloatLayout:
+        # Título colado no topo
+        Label:
+            text: "Gerenciamento de Clientes/Pallets"
+            bold: True
+            font_size: max(dp(16), root.width * 0.05)  # Ajusta a font do titulo conforme o tamanho da tela
+            color: get_color_from_hex('#00FFFF')
+            size_hint: 1, None
+            height: self.texture_size[1]  # Altura automática
+            pos_hint: {'top': 0.97, 'center_x': 0.5}  # Posição precisa
+            text_size: None, None  # Desativa a quebra automática
+            halign: 'center'
+            valign: 'middle'
+            padding: dp(5), dp(5)  # Espaço interno
+            shorten: False
+
+
+        # Botão Registrar
+        Button:
+            background_color: 0, 0, 0, 0
+            size_hint: (None, None)
+            size: (max(dp(200), root.width * 0.7), max(dp(40), root.height * 0.07))  # Tamanho responsivo
+            pos_hint: {'right': 0.77, 'y': 0.56}  # Posição ajustada
+            on_release: root.abrir_popup_registro()
+
+            BoxLayout:  # Nova estrutura de ícone + texto
+                orientation: 'horizontal'
+                spacing: max(dp(5), root.width * 0.02)
+                size_hint: None, None
+                size: self.parent.width, self.parent.height
+                pos: self.parent.pos
+                padding: [dp(10), 0]
+
+                Label:
+                    font_name: "FontAwesome"
+                    text: "\uf234"  # Ícone de adição (FontAwesome)
+                    font_size: max(dp(18), root.width * 0.035)
+                    color: get_color_from_hex('#AFEEEE')
+                    size_hint_x: None
+                    width: dp(25)
+
+                Label:
+                    text: "Registrar Novo Cliente/Pallet"  # Texto original
+                    bold: True
+                    font_size: max(dp(16), root.width * 0.035)
+                    color: get_color_from_hex('#AFEEEE')
+                    size_hint_x: None
+                    width: self.texture_size[0]
+                    halign: 'left'
+
+        # Botão Editar
+        Button:
+            background_color: 0, 0, 0, 0
+            size_hint: (None, None)
+            size: (max(dp(200), root.width * 0.7), max(dp(40), root.height * 0.07))
+            pos_hint: {'right': 0.77, 'y': 0.46}
+            on_release: root.abrir_popup_edicao()
+
+            BoxLayout:
+                orientation: 'horizontal'
+                spacing: max(dp(5), root.width * 0.02)
+                size_hint: None, None
+                size: self.parent.width, self.parent.height
+                pos: self.parent.pos
+                padding: [dp(10), 0]
+
+                Label:
+                    font_name: "FontAwesome"
+                    text: "\uf044"  # Ícone de edição (FontAwesome)
+                    font_size: max(dp(18), root.width * 0.035)
+                    color: get_color_from_hex('#AFEEEE')
+                    size_hint_x: None
+                    width: dp(25)
+
+                Label:
+                    text: "Editar Cliente/Pallet"  # Texto original
+                    bold: True
+                    font_size: max(dp(16), root.width * 0.035)
+                    color: get_color_from_hex('#AFEEEE')
+                    size_hint_x: None
+                    width: self.texture_size[0]
+                    halign: 'left'
+
+        # Botão Voltar
+        Button:
+            background_color: 0, 0, 0, 0
+            size_hint: (None, None)
+            size:(max(dp(200), root.width * 0.7), max(dp(40), root.height * 0.07))
+            pos_hint: {'right': 0.77, 'y': 0.07}
+            on_release: root.tela_pai.popup.dismiss()  # 👈 Fecha o popup
+
+            BoxLayout:
+                orientation: 'horizontal'
+                spacing: max(dp(5), root.width * 0.02)   #  Ajusta o espaço do icone conforme o tamanho da tela
+                size_hint: None, None
+                size: self.parent.width, self.parent.height   #  Herda tamanho do botão
+                pos: self.parent.pos   #  Posiciona no mesmo local do botão
+
+                Label:
+                    font_name: "FontAwesome"
+                    text: "\uf060"  # Ícone de seta
+                    font_size: max(dp(18), root.width * 0.035)
+                    color: get_color_from_hex('#AFEEEE')
+                    size_hint_x: None
+                    width: dp(30)  # Largura fixa para o ícone
+
+                Label:
+                    text: "Voltar"
+                    bold: True
+                    font_size: max(dp(16), root.width * 0.035)
+                    color: get_color_from_hex('#AFEEEE')
+                    halign: 'left'
+                    size_hint_x: None
+                    width: self.texture_size[0]  # Largura automática pelo texto
+
+
+<TelaConsulta>:
+    name: 'consulta'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(20)
+        spacing: dp(15)
+        canvas.before:
+            Color:
+                rgba: get_color_from_hex('#A8D1EA')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # --- BARRA DE BUSCA ---
+        BoxLayout:
+            size_hint_y: None
+            height: dp(50)
+            spacing: dp(10)
+
+            RoundedTextInput:
+                id: busca_input
+                hint_text: "Buscar por cliente, pallet ou data..."
+                on_text: root.carregar_registros(self.text)  # Atualiza a busca ao digitar
+
+            RoundedButton:
+                text: "Limpar"
+                base_color: get_color_from_hex('#757575')
+                on_press: 
+                    root.carregar_registros("")  # Remove o filtro
+                    busca_input.text = ""  # Limpa o campo
+
+        TabbedPanel:
+            id: tabs
+            background_color: get_color_from_hex('#1976D2')
+            border: [0, 0, 0, 0]
+            tab_width: root.width * 0.4
+            do_default_tab: False
+            on_current_tab: root.on_tab_change(*args)
+
+            TabbedPanelItem:
+                text: 'Histórico Completo'
+                font_size: '16sp'
+                color: get_color_from_hex('#FFFFFF')
+                background_normal: ''
+                background_down: ''
+                background_color: get_color_from_hex('#1565C0' if self.state == 'down' else '#1976D2')
+                
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing: dp(5)
+                    padding: dp(5)
+
+                    # --- CABEÇALHO ---
+                    BoxLayout:
+                        size_hint_y: None
+                        height: dp(40)
+                        spacing: dp(5)
+                        padding: [dp(10), 0]
+            
+                        Label:
+                            text: "Cliente"
+                            bold: True
+                            color: get_color_from_hex('#1565C0')
+                            size_hint_x: 0.3
+                            halign: 'center'
+                
+                        Label:
+                            text: "Data"
+                            bold: True
+                            color: get_color_from_hex('#1565C0')
+                            size_hint_x: 0.2
+                            halign: 'center'
+                
+                        Label:
+                            text: "Pallet"
+                            bold: True
+                            color: get_color_from_hex('#1565C0')
+                            size_hint_x: 0.3
+                            halign: 'center'
+
+                        Label:
+                            text: "Tipo"
+                            bold: True
+                            color: get_color_from_hex('#1565C0')
+                            size_hint_x: 0.15
+                            halign: 'center'
+
+                        Label:
+                            text: "Quantidade"
+                            bold: True
+                            color: get_color_from_hex('#1565C0')
+                            size_hint_x: 0.2
+                            halign: 'center'
+
+                    # --- LISTA DE REGISTROS ---
+                    RoundedScrollView:
+                        RecycleView:
+                            id: rv_historico
+                            data: root.registros
+                            viewclass: 'RegistroConsultaItem'
+                        
+                            RecycleBoxLayout:
+                                orientation: 'vertical'
+                                default_size: None, dp(40)
+                                default_size_hint: 1, None
+                                size_hint_y: None
+                                height: self.minimum_height
+                                spacing: dp(2)
+                    
+            TabbedPanelItem:
+                text: 'Totais por Cliente'
+                font_size: '16sp'
+                color: get_color_from_hex('#FFFFFF')
+                background_normal: ''
+                background_down: ''
+                background_color: get_color_from_hex('#1565C0' if self.state == 'down' else '#1976D2')
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing: dp(5)
+                    padding: dp(5)
+
+                    # --- CABEÇALHO ---
+                    BoxLayout:
+                        size_hint_y: None
+                        height: dp(40)
+                        spacing: dp(5)
+                        padding: [dp(10), 0]
+                        
+                        Label:
+                            text: "Cliente"
+                            bold: True
+                            color: get_color_from_hex('#1565C0')
+                            size_hint_x: 0.4
+                            halign: 'left'
+                            
+                        Label:
+                            text: "Pallet"
+                            bold: True
+                            color: get_color_from_hex('#1565C0')
+                            size_hint_x: 0.4
+                            halign: 'left'
+                            
+                        Label:
+                            text: "Total"
+                            bold: True
+                            color: get_color_from_hex('#1565C0')
+                            size_hint_x: 0.2
+                            halign: 'center'
+
+                    # --- LISTA DE TOTAIS ---
+                    RoundedScrollView:
+                        RecycleView:
+                            id: rv_totais
+                            viewclass: 'TotalItem'
+
+                            RecycleBoxLayout:
+                                orientation: 'vertical'
+                                default_size: None, dp(40)
+                                default_size_hint: 1, None
+                                size_hint_y: None
+                                height: self.minimum_height
+                                spacing: dp(2)
+
+        # --- BOTÕES INFERIORES ---
+        BoxLayout:
+            size_hint_y: None
+            height: dp(60)
+            spacing: dp(23)
+            
+            Widget:  # 👈 Espaçador esquerdo
+                size_hint_x: 0.005
+
+            VoltarButton:
+            NovoRegistroButton:
+            SaidaButton:
+            
+            Widget:  # 👈 Espaçador esquerdo
+                size_hint_x: 0.005
+
+
+# --- LISTA DE REGISTROS ---
+<RegistroConsultaItem@BoxLayout>:
+    cliente: ""
+    data: ""
+    pallet: ""
+    tipo: ""
+    quantidade: ""
+    
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: dp(40)
+    spacing: dp(5)
+    padding: dp(5)
+
+    # Cliente
+    Label:
+        text: root.cliente
+        size_hint_x: 0.3
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+
+    # Data
+    Label:
+        text: root.data
+        size_hint_x: 0.2
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+
+    # Pallet
+    Label:
+        text: root.pallet
+        size_hint_x: 0.3
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+    
+     # Tipo
+    Label:
+        text: root.tipo
+        size_hint_x: 0.15
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+        color: get_color_from_hex('#2E7D32') if root.tipo == 'ENTRADA' else get_color_from_hex('#D32F2F')
+
+    # Quantidade
+    Label:
+        text: root.quantidade
+        size_hint_x: 0.2
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'        
+
+# --- LISTA DE TOTAIS ---
+<TotalItem@BoxLayout>:
+    cliente: ""
+    pallet: ""
+    total: ""
+    
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: dp(40)
+    spacing: dp(5)
+    padding: dp(5)
+    
+    Label:
+        text: root.cliente
+        size_hint_x: 0.4
+        halign: 'center'
+    
+    Label:
+        text: root.pallet
+        size_hint_x: 0.4
+        halign: 'center'
+    
+    Label:
+        text: root.total
+        size_hint_x: 0.2
+        halign: 'center'
+        bold: True
+        color: get_color_from_hex('#2E7D32') 
+
+
+
