@@ -6,27 +6,27 @@
 ## 🧾 Sobre o Projeto
 Um sistema completo para gestão de entrada/saída de pallets com integração em tempo real usando Firebase Firestore.
 
-![Menu do Aplicativo](registrador_de_pallets_python/menu_imagem.png) <!-- Adicione suas imagens -->
+![Menu do Aplicativo](menu_imagem.png)
 
 ## 📚 Índice
 
-- [🧾 Sobre o Projeto](#sobre-o-projeto)
+- 🧾 Sobre o Projeto
 
-- [✨ Funcionalidades Principais](#funcionalidades-principais)
+- ✨ Funcionalidades Principais
 
-- [🛠 Tecnologias Utilizadas](#tecnologias-utilizadas)
+- 🛠 Tecnologias Utilizadas
 
-- [⚙️ Pré-requisitos](#️pré-requisitos)
+- ⚙️ Pré-requisitos
 
-- [🚀 Instalação](#instalação)
+- 🚀 Instalação
 
-- [⚠️ Segurança de Chaves](#importante-segurança-de-chaves)
+- ⚠️ Segurança de Chaves
 
-- [▶️ Executando a Aplicação](#️executando-a-aplicação)
+- ▶️ Executando a Aplicação
 
-- [📦 Empacotamento para Android](#empacotamento-para-android-buildozer)
+- 📦 Empacotamento para Android
 
-- [📂 Estrutura do Projeto](#estrutura-do-projeto)
+- 📂 Estrutura do Projeto
 
 ## ✨ Funcionalidades Principais
 
@@ -86,7 +86,7 @@ source venv/bin/activate  # Linux/Mac
 
     - Coloque o arquivo na raiz do projeto
 
-## ⚠️ Importante: Segurança de Chaves
+## ⚠️ Segurança de Chaves
 
 - Nunca commit o arquivo serviceAccountKey.json! Adicione ao .gitignore:
 
@@ -118,7 +118,7 @@ Exemplo de estrutura (use serviceAccountKey.example.json como modelo):
 
 main.py
 
-## 📦 Empacotamento para Android (Buildozer)
+## 📦 Empacotamento para Android
 
 1. **Instale o Buildozer:**
 
