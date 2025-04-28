@@ -1,0 +1,5 @@
+kivy == 2.2.0
+
+firebase-admin == 6.2.0
+
+Python == 3.13.3
