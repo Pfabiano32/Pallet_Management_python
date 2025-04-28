@@ -1,7 +1,7 @@
 # 🚀 PalletTrack – Sistema de Gerenciamento de Pallets com Firebase em Tempo Real
 
-[![Kivy](https://img.shields.io/badge/Kivy-2.2.0-blue)](https://kivy.org)
-[![Firebase](https://img.shields.io/badge/Firebase-Cloud%20Firestore-orange)](https://firebase.google.com)
+Biblioteca Kivy: [![Kivy](https://img.shields.io/badge/Kivy-2.2.0-blue)](https://kivy.org)
+Banco de dados Firebase: [![Firebase](https://img.shields.io/badge/Firebase-Cloud%20Firestore-orange)](https://firebase.google.com)
 
 ## 🧾 Sobre o Projeto
 Um sistema completo para gestão de entrada/saída de pallets com integração em tempo real usando Firebase Firestore.
@@ -96,7 +96,7 @@ source venv/bin/activate  # Linux/Mac
 ## 🔑 Exemplo de Arquivo serviceAccountKey.json
 ⚠️ **Atenção:** O arquivo serviceAccountKey.json contém credenciais sensíveis do Firebase e não deve ser enviado ao repositório.
 
-Use o exemplo abaixo como modelo para criar o seu próprio arquivo e adicione o original ao .gitignore.
+Use o exemplo abaixo como modelo para criar o seu próprio recriar o projeto.
 
 Exemplo de estrutura (use serviceAccountKey.example.json como modelo):
 
@@ -143,6 +143,8 @@ main.py
 kivy == 2.2.0
 
 firebase-admin == 6.2.0
+
+Python == 13.13.3
 
 ## 🛠 Estrutura do Projeto
 
