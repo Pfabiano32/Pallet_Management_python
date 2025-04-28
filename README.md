@@ -144,7 +144,7 @@ kivy == 2.2.0
 
 firebase-admin == 6.2.0
 
-Python == 13.13.3
+Python == 3.13.3
 
 ## 🛠 Estrutura do Projeto
 
